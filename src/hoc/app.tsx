@@ -197,7 +197,7 @@ export function ApplicationLayout({
 }) {
   const [priorityFee, setPriorityFee] = useLocalStorage<number>(
     "priorityFee",
-    0.0001
+    0.0001,
   );
   const [priorityFeeDialogOpen, setPriorityFeeDialogOpen] = useState(false);
 
@@ -267,9 +267,9 @@ export function ApplicationLayout({
                 <FaPlusCircle />
                 <SidebarLabel>Manage token</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/nirvana" current={path === "/nirvana"}>
+              <SidebarItem href="/luts" current={path === "/luts"}>
                 <FaPlusCircle />
-                <SidebarLabel>Nirvana</SidebarLabel>
+                <SidebarLabel>LUTs</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 
@@ -301,7 +301,7 @@ export function ApplicationLayout({
               <div
                 className={clsx(
                   "h-0 overflow-hidden transition-[height] duration-300 ease-in-out",
-                  priorityFeeDialogOpen ? "h-[100px]" : "h-0"
+                  priorityFeeDialogOpen ? "h-[100px]" : "h-0",
                 )}
               >
                 <SidebarItem onClick={() => setPriorityFee(0.0001)}>

@@ -2,12 +2,16 @@ import {
   createMetadataAccountV3,
   CreateMetadataAccountV3InstructionAccounts,
   CreateMetadataAccountV3InstructionArgs,
+  fetchDigitalAsset,
   mplTokenMetadata,
+  updateMetadataAccountV2,
+  UpdateMetadataAccountV2InstructionAccounts,
+  UpdateMetadataAccountV2InstructionData,
 } from "@metaplex-foundation/mpl-token-metadata";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
-import { Signer as UmiSigner } from "@metaplex-foundation/umi";
+import { publicKey, Signer as UmiSigner } from "@metaplex-foundation/umi";
 import {
   fromWeb3JsPublicKey,
   toWeb3JsPublicKey,
@@ -19,12 +23,10 @@ const mplProgramId = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
 );
 
-export const createMetadataIx = (
+export const updateMetadataIx = async (
   wallet: WalletAdapter,
-  mint: Keypair,
-  name: string,
-  symbol: string,
-  metadataUri: string,
+  mint: PublicKey,
+  newUpdateAuthority: string,
 ) => {
   invariant(wallet.publicKey, "Wallet not connected");
   const umi = createUmi(process.env.GATSBY_RPC_ENDPOINT!)
@@ -33,40 +35,32 @@ export const createMetadataIx = (
     .use(walletAdapterIdentity(wallet));
 
   const [metadata] = PublicKey.findProgramAddressSync(
-    [Buffer.from("metadata"), mplProgramId.toBytes(), mint.publicKey.toBytes()],
+    [Buffer.from("metadata"), mplProgramId.toBytes(), mint.toBytes()],
     mplProgramId,
   );
 
-  const args: CreateMetadataAccountV3InstructionArgs = {
-    data: {
-      name,
-      symbol,
-      uri: metadataUri,
-      sellerFeeBasisPoints: 0,
-      creators: [
-        {
-          address: fromWeb3JsPublicKey(wallet.publicKey),
-          verified: true,
-          share: 100,
-        },
-      ],
-      collection: null,
-      uses: null,
-    },
-    isMutable: true,
-    collectionDetails: null,
+  const currentData = await fetchDigitalAsset(
+    umi,
+    fromWeb3JsPublicKey(new PublicKey(mint)),
+  );
+
+  const args: UpdateMetadataAccountV2InstructionData = {
+    ...currentData.metadata,
+    // @ts-expect-error some umi stuff
+    newUpdateAuthority: publicKey(newUpdateAuthority),
   };
 
   // Metadata account IX Accounts
   const accounts: CreateMetadataAccountV3InstructionAccounts = {
     metadata: fromWeb3JsPublicKey(metadata),
-    mint: fromWeb3JsPublicKey(mint.publicKey),
+    mint: fromWeb3JsPublicKey(mint),
     payer: wallet as unknown as UmiSigner,
     mintAuthority: wallet as unknown as UmiSigner,
-    updateAuthority: undefined,
+    updateAuthority: wallet as unknown as UmiSigner,
   };
 
-  const umiTx = createMetadataAccountV3(umi, { ...accounts, ...args });
+  // @ts-expect-error some umi stuff
+  const umiTx = updateMetadataAccountV2(umi, { ...accounts, ...args });
 
   const ix = umiTx.getInstructions()[0];
   ix.keys = ix.keys.map((key) => {
