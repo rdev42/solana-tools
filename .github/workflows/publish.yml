@@ -42,6 +42,7 @@ jobs:
         run: yarn build
         env:
           VITE_RPC_ENDPOINT: ${{ secrets.VITE_RPC_ENDPOINT }}
+          VITE_GA_ID: ${{ vars.VITE_GA_ID }}
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
