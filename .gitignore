@@ -3,3 +3,4 @@ public
 .env*
 .webpack
 .cache
+.DS_Store
