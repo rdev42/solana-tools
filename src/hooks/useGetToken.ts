@@ -16,11 +16,8 @@ export const useGetToken = (mint: string) => {
   return useQuery({
     queryKey: ["token", mint],
     queryFn: async () => {
-      invariant(
-        process.env.GATSBY_RPC_ENDPOINT,
-        "GATSBY_RPC_ENDPOINT is not set",
-      );
-      const umi = createUmi(process.env.GATSBY_RPC_ENDPOINT).use(
+      invariant(import.meta.env.VITE_RPC_ENDPOINT, "RPC_ENDPOINT is not set");
+      const umi = createUmi(import.meta.env.VITE_RPC_ENDPOINT).use(
         mplTokenMetadata(),
       );
 

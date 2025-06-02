@@ -12,7 +12,6 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
     "@headlessui/react": "^2.2.4",
-    "@heroicons/react": "^2.2.0",
     "@irys/sdk": "^0.2.11",
     "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
     "@metaplex-foundation/umi": "^1.2.0",

@@ -25,7 +25,7 @@ export default function RadioButtons({
               value === option.value
                 ? 'dark:bg-zinc-700 dark:hover:bg-zinc-600 border border-zinc-600'
                 : 'dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-800',
-              'space-y-0 flex flex-grow items-center gap-2 p-3 rounded-md cursor-pointer transition-colors'
+              'space-y-0 flex grow items-center gap-2 p-3 rounded-md cursor-pointer transition-colors'
             )}
           >
             <Radio value={option.value}></Radio>

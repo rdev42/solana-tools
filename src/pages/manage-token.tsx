@@ -29,7 +29,7 @@ const ManageTokenPage: React.FC = () => {
   const { connection } = useConnection();
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
-  const token = useGetToken(mint);
+  const { data: token } = useGetToken(mint);
   console.log(token);
   return (
     <>
@@ -49,16 +49,16 @@ const ManageTokenPage: React.FC = () => {
           <div className="bg-gray-800 rounded-lg p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-gray-400">Name</div>
-              <div>{token.data?.metadata.name}</div>
+              <div>{token.metadata.name}</div>
 
               <div className="text-gray-400">Symbol</div>
-              <div>{token.data?.metadata.symbol}</div>
+              <div>{token.metadata.symbol}</div>
 
               <div className="text-gray-400">Decimals</div>
-              <div>{token.data?.mint.decimals}</div>
+              <div>{token.mint.decimals}</div>
 
               <div className="text-gray-400">Logo</div>
-              <div>{token.data?.image}</div>
+              <div>{token.image}</div>
             </div>
           </div>
           <div className="bg-gray-800 rounded-lg p-6 space-y-4">
@@ -66,9 +66,9 @@ const ManageTokenPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-gray-400">Current Mint Authority</div>
               <div>
-                {token.data?.mint.mintAuthority &&
-                token.data.mint.mintAuthority.__option === "Some"
-                  ? token.data.mint.mintAuthority.value.toString()
+                {token.mint.mintAuthority &&
+                token.mint.mintAuthority.__option === "Some"
+                  ? token.mint.mintAuthority.value.toString()
                   : "No mint authority"}
               </div>
             </div>
@@ -168,9 +168,9 @@ const ManageTokenPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-gray-400">Current Freeze Authority</div>
               <div>
-                {token.data?.mint.freezeAuthority &&
-                token.data.mint.freezeAuthority.__option === "Some"
-                  ? token.data.mint.freezeAuthority.value.toString()
+                {token.mint.freezeAuthority &&
+                token.mint.freezeAuthority.__option === "Some"
+                  ? token.mint.freezeAuthority.value.toString()
                   : "No freeze authority"}
               </div>
             </div>
@@ -267,9 +267,9 @@ const ManageTokenPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-gray-400">Current Update Authority</div>
               <div>
-                {token.data?.metadata.updateAuthority &&
-                token.data.metadata.updateAuthority.toString()
-                  ? token.data.metadata.updateAuthority.toString()
+                {token.metadata.updateAuthority &&
+                token.metadata.updateAuthority.toString()
+                  ? token.metadata.updateAuthority.toString()
                   : "No update authority"}
               </div>
             </div>

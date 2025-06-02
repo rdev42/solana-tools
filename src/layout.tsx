@@ -1,21 +1,22 @@
 "use client";
 
-import { Button } from "@headlessui/react";
 import { useWalletMultiButton } from "@solana/wallet-adapter-base-ui";
 import { useLocalStorage } from "@solana/wallet-adapter-react";
 import React, { useState } from "react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { FaPlusCircle, FaCaretDown, FaCaretUp } from "react-icons/fa";
+import {
+  FaPlusCircle,
+  FaCaretDown,
+  FaCaretUp,
+  FaHome,
+  FaChevronUp,
+  FaArrowRight,
+} from "react-icons/fa";
 import {
   MdSignalCellular1Bar,
   MdSignalCellular3Bar,
   MdSignalCellular4Bar,
 } from "react-icons/md";
-import {
-  ArrowRightStartOnRectangleIcon,
-  ChevronUpIcon,
-  HomeIcon,
-} from "@heroicons/react/16/solid";
 import Address from "./components/address";
 import { Avatar } from "./components/avatar";
 import {
@@ -47,6 +48,7 @@ import { SidebarLayout } from "./components/sidebar-layout";
 import SolBalance from "./components/solBalance";
 import clsx from "clsx";
 import { useLocation } from "react-router-dom";
+import { Button } from "./components/button";
 
 function AccountDropdownMenu({
   anchor,
@@ -85,7 +87,7 @@ function AccountDropdownMenu({
       ) : null}
       {anchor === "bottom end" ? <DropdownDivider /> : null}
       <DropdownItem onClick={onDisconnect}>
-        <ArrowRightStartOnRectangleIcon />
+        <FaArrowRight />
         <DropdownLabel>Disconnect</DropdownLabel>
       </DropdownItem>
     </DropdownMenu>
@@ -132,7 +134,7 @@ function WalletConnectionDropdown({
               </span>
             </span>
           </span>
-          <ChevronUpIcon />
+          <FaChevronUp />
         </DropdownButton>
       )}
       <AccountDropdownMenu anchor={anchor} />
@@ -198,7 +200,7 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
           <SidebarBody>
             <SidebarSection>
               <SidebarItem href="/" current={path === "/"}>
-                <HomeIcon />
+                <FaHome />
                 <SidebarLabel>Upload file</SidebarLabel>
               </SidebarItem>
               <SidebarItem
