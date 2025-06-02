@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { HeadFC, PageProps } from "gatsby";
 import {
   useAnchorWallet,
   useConnection,
@@ -23,13 +22,13 @@ import { createMetadataIx } from "../helpers/createMetadataIx";
 import { executeTx } from "../helpers/transaction";
 import { uploadFile } from "../helpers/uploadFile";
 
-const CreateTokenPage: React.FC<PageProps> = () => {
+const CreateTokenPage: React.FC = () => {
   const [pending, setPending] = useState<boolean>(false);
   const { connection } = useConnection();
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
 
-  const { register, handleSubmit, watch } = useForm<{
+  const { register, handleSubmit } = useForm<{
     mint: string;
     name: string;
     symbol: string;

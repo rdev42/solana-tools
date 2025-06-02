@@ -1,64 +1,52 @@
 "use client";
 
+import { Button } from "@headlessui/react";
 import { useWalletMultiButton } from "@solana/wallet-adapter-base-ui";
-import { Avatar } from "../components/avatar";
-import {
-  Dropdown,
-  DropdownButton,
-  DropdownDivider,
-  DropdownItem,
-  DropdownLabel,
-  DropdownMenu,
-} from "../components/dropdown";
-import { Text } from "../components/text";
-import {
-  Navbar,
-  NavbarItem,
-  NavbarSection,
-  NavbarSpacer,
-} from "../components/navbar";
-import {
-  Sidebar,
-  SidebarBody,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarItem,
-  SidebarLabel,
-  SidebarSection,
-  SidebarSpacer,
-} from "../components/sidebar";
-import { SidebarLayout } from "../components/sidebar-layout";
-import {
-  ArrowRightStartOnRectangleIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/16/solid";
-import {
-  BanknotesIcon,
-  HomeIcon,
-  RocketLaunchIcon,
-} from "@heroicons/react/20/solid";
-import { FaPlusCircle } from "react-icons/fa";
+import { useLocalStorage } from "@solana/wallet-adapter-react";
+import React, { useState } from "react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { Button } from "../components/button";
-import Address from "../components/address";
-import { Heading } from "../components/heading";
-import { useGetToken } from "../hooks/useGetToken";
-import { useLocalStorage } from "usehooks-ts";
-import { FaCaretDown, FaCaretUp, FaFire } from "react-icons/fa6";
-import { useState } from "react";
-import clsx from "clsx";
-import { toPrecision } from "../helpers/number";
+import { FaPlusCircle, FaCaretDown, FaCaretUp } from "react-icons/fa";
 import {
   MdSignalCellular1Bar,
   MdSignalCellular3Bar,
   MdSignalCellular4Bar,
 } from "react-icons/md";
-import { Input } from "../components/input";
-import { useForm } from "react-hook-form";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { useGetSolBalance } from "../hooks/useGetSolBalance";
-import { useWallet } from "@solana/wallet-adapter-react";
-import SolBalance from "../components/solBalance";
+import {
+  ArrowRightStartOnRectangleIcon,
+  ChevronUpIcon,
+  HomeIcon,
+} from "@heroicons/react/16/solid";
+import Address from "./components/address";
+import { Avatar } from "./components/avatar";
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownDivider,
+  DropdownLabel,
+  Dropdown,
+  DropdownButton,
+} from "./components/dropdown";
+import { Heading } from "./components/heading";
+import {
+  NavbarItem,
+  Navbar,
+  NavbarSpacer,
+  NavbarSection,
+} from "./components/navbar";
+import {
+  SidebarItem,
+  Sidebar,
+  SidebarHeader,
+  SidebarBody,
+  SidebarSection,
+  SidebarLabel,
+  SidebarSpacer,
+  SidebarFooter,
+} from "./components/sidebar";
+import { SidebarLayout } from "./components/sidebar-layout";
+import SolBalance from "./components/solBalance";
+import clsx from "clsx";
+import { useLocation } from "react-router-dom";
 
 function AccountDropdownMenu({
   anchor,
@@ -152,49 +140,9 @@ function WalletConnectionDropdown({
   );
 }
 
-const Favorite = ({ favorite }: { favorite: string }) => {
-  const { data: token } = useGetToken(favorite);
-
-  if (!token) {
-    return null;
-  }
-
-  return (
-    <SidebarItem
-      key={token.mint.publicKey.toString()}
-      href={`/token/${token.mint.publicKey.toString()}`}
-      className="w-full"
-    >
-      <div className="flex justify-between items-center w-full">
-        <div className="flex items-center gap-2">
-          {token?.image && (
-            <img
-              src={token.image}
-              alt={token?.metadata.symbol}
-              className="w-6 h-6 rounded-full"
-            />
-          )}
-          <span>{token?.metadata.symbol ?? "Token"}</span>
-        </div>
-        {/* <div className="flex gap-2 items-end">
-          <span className="text-right">$0.0023</span>
-          <span className={`text-right ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {change >= 0 ? '+' : ''}
-            {change.toFixed(2)}%
-          </span>
-        </div> */}
-      </div>
-    </SidebarItem>
-  );
-};
-
-export function ApplicationLayout({
-  children,
-  path,
-}: {
-  children: React.ReactNode;
-  path: string;
-}) {
+export function ApplicationLayout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const path = location.pathname;
   const [priorityFee, setPriorityFee] = useLocalStorage<number>(
     "priorityFee",
     0.0001,

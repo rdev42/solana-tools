@@ -6,7 +6,7 @@ import { uploadFile } from "../helpers/uploadFile";
 export const useUploadFile = () => {
   const { wallet } = useWallet();
 
-  invariant(process.env.GATSBY_RPC_ENDPOINT, "RPC endpoint is not set");
+  invariant(import.meta.env.VITE_RPC_ENDPOINT, "RPC endpoint is not set");
 
   return useMutation({
     mutationFn: async (file: File) => {

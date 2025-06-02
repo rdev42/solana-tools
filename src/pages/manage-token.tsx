@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { PageProps } from "gatsby";
 import {
   useAnchorWallet,
   useConnection,
@@ -21,7 +20,7 @@ import { toast } from "sonner";
 import { MintTokenForm } from "../components/Manage/MintTokenForm";
 import { updateMetadataIx } from "../helpers/updateMetadataIx";
 
-const ManageTokenPage: React.FC<PageProps> = () => {
+const ManageTokenPage: React.FC = () => {
   const [pending, setPending] = useState<boolean>(false);
   const [mint, setMint] = useState<string>("");
   const [newMintAuthority, setNewMintAuthority] = useState<string>("");

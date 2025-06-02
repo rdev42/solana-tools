@@ -1,7 +1,7 @@
 import { WebIrys } from "@irys/sdk";
 import type { Wallet } from "@solana/wallet-adapter-react";
 
-const getIrys = async (_wallet: any): Promise<WebIrys> => {
+const getIrys = async (_wallet: Wallet["adapter"]): Promise<WebIrys> => {
   const rpcUrl = process.env.GATSBY_RPC_ENDPOINT;
   const wallet = { rpcUrl: rpcUrl, name: "solana", provider: _wallet };
   const webIrys = new WebIrys({ network: "mainnet", token: "solana", wallet });

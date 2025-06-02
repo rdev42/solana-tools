@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { HeadFC, PageProps } from "gatsby";
 import {
   useAnchorWallet,
   useConnection,
@@ -9,22 +8,10 @@ import { Button } from "../components/button";
 import { Input } from "../components/input";
 import { Heading } from "../components/heading";
 import { useForm } from "react-hook-form";
-import { useUploadFile } from "../hooks/useUploadFile";
 import { useEffect, useState } from "react";
-import { MINT_SIZE, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { getMinimumBalanceForRentExemptMint } from "@solana/spl-token";
-import { createInitializeMintInstruction } from "@solana/spl-token";
-import {
-  AddressLookupTableProgram,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import { AddressLookupTableProgram, PublicKey } from "@solana/web3.js";
 import invariant from "tiny-invariant";
-import { createMetadataIx } from "../helpers/createMetadataIx";
 import { executeTx } from "../helpers/transaction";
-import { uploadFile } from "../helpers/uploadFile";
 
 const CreateLutForm = () => {
   const [pending, setPending] = useState<boolean>(false);
@@ -57,7 +44,7 @@ const CreateLutForm = () => {
     setPending(false);
   };
 
-  const { register, handleSubmit, watch } = useForm();
+  const { handleSubmit } = useForm();
 
   return (
     <form onSubmit={handleSubmit(onCreateLUT)} className="space-y-6">
@@ -100,7 +87,7 @@ const ExtendLUTForm = () => {
     if (lut) {
       getLut();
     }
-  }, [lut]);
+  }, [lut, connection]);
 
   const onExtendLUT = async (data: { lut: string; luts: string }) => {
     invariant(wallet?.adapter.publicKey, "Wallet is not connected");
@@ -165,7 +152,7 @@ const ExtendLUTForm = () => {
   );
 };
 
-const LutsPage: React.FC<PageProps> = () => {
+const LutsPage: React.FC = () => {
   return (
     <>
       <CreateLutForm />
