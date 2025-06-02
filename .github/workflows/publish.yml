@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - "**"
+  release:
+    types: [published]
+  pull_request:
+    branches:
+      - "**"
+
+concurrency: ci-${{ contains(github.ref, 'refs/tags/') && 'production' || github.ref }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Publish to Cloudflare Pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: yarn build
+        env:
+          GATSBY_RPC_ENDPOINT: ${{ secrets.GATSBY_RPC_ENDPOINT }}
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_WRITE }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: solana-tools
+          directory: dist
+          branch: ${{ contains(github.ref, 'refs/tags/') && 'main' || format('{0}-{1}', 'preview', github.ref) }}

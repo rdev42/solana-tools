@@ -85,7 +85,7 @@ export const createVersionedTransaction = async (
   }).compileToV0Message(atas);
   const transaction = new VersionedTransaction(messageV0);
 
-  const txSigners = transaction.message.staticAccountKeys.filter((x, i) =>
+  const txSigners = transaction.message.staticAccountKeys.filter((_, i) =>
     transaction.message.isAccountSigner(i),
   );
   transaction.sign(

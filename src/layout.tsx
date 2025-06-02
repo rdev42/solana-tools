@@ -166,7 +166,7 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
           <SidebarHeader>
             <Dropdown>
               <SidebarItem>
-                <Avatar src="/images/logo.png" />
+                <Avatar className="w-10 h-10" src="/logo.png" />
                 <Heading>Tools</Heading>
               </SidebarItem>
               {/* <DropdownButton as={SidebarItem}>

@@ -1,5 +1,4 @@
-import React from 'react';
-import { HiExternalLink } from 'react-icons/hi';
+import { HiExternalLink } from "react-icons/hi";
 
 export default function TX(props: { tx: string }) {
   return (

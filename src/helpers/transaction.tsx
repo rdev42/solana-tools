@@ -1,4 +1,3 @@
-import React from "react";
 import type { AnchorWallet } from "@solana/wallet-adapter-react";
 import invariant from "tiny-invariant";
 import {
@@ -241,7 +240,7 @@ export const executeJitoBundle = async (
       );
       const transaction = new VersionedTransaction(messageV0);
 
-      const txSigners = transaction.message.staticAccountKeys.filter((x, i) =>
+      const txSigners = transaction.message.staticAccountKeys.filter((_, i) =>
         transaction.message.isAccountSigner(i),
       );
       transaction.sign(
