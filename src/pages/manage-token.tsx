@@ -30,7 +30,7 @@ const ManageTokenPage: React.FC = () => {
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
   const { data: token } = useGetToken(mint);
-  console.log(token);
+
   return (
     <>
       <Heading>Manage token</Heading>
