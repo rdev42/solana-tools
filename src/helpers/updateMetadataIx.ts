@@ -26,7 +26,7 @@ export const updateMetadataIx = async (
   newUpdateAuthority: string,
 ) => {
   invariant(wallet.publicKey, "Wallet not connected");
-  const umi = createUmi(process.env.GATSBY_RPC_ENDPOINT!)
+  const umi = createUmi(import.meta.env.VITE_RPC_ENDPOINT!)
     .use(mplTokenMetadata())
     // eslint-disable-next-line
     .use(walletAdapterIdentity(wallet));

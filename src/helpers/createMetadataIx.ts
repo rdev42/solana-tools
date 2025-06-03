@@ -27,7 +27,7 @@ export const createMetadataIx = (
   metadataUri: string,
 ) => {
   invariant(wallet.publicKey, "Wallet not connected");
-  const umi = createUmi(process.env.GATSBY_RPC_ENDPOINT!)
+  const umi = createUmi(import.meta.env.VITE_RPC_ENDPOINT)
     .use(mplTokenMetadata())
     .use(walletAdapterIdentity(wallet));
 
