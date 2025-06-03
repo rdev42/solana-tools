@@ -94,7 +94,5 @@ export const createVersionedTransaction = async (
     ),
   );
 
-  console.log(Buffer.from(transaction.serialize()).toString("base64"));
-
   return { transaction, latestBlockhash };
 };

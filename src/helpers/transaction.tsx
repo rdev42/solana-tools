@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { createVersionedTransaction } from "./versionedTransaction";
 import { LAUNCHPAD_LUT } from "../constants";
+import { Link } from "react-router-dom";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 const sendTransaction = async (
   connection: Connection,
@@ -99,6 +101,17 @@ const sendTransaction = async (
   return "Transaction failed";
 };
 
+const makeURL = (tx: VersionedTransaction) => {
+  const url = new URL("https://explorer.solana.com/tx/inspector");
+  url.searchParams.set("cluster", "mainnet-beta");
+  url.searchParams.set("signatures", encodeURIComponent(JSON.stringify([])));
+  url.searchParams.set(
+    "message",
+    Buffer.from(tx.message.serialize()).toString("base64"),
+  );
+  return url;
+};
+
 export const executeTx = async (
   connection: Connection,
   transaction: {
@@ -112,6 +125,24 @@ export const executeTx = async (
 ) => {
   invariant(wallet.publicKey);
 
+  // Get base64 of the tx
+  const priorityFeeLS = localStorage.getItem("priorityFee")
+    ? parseFloat(localStorage.getItem("priorityFee")!)
+    : undefined;
+  const priorityFee = (priorityFeeLS ?? 0.0001) * LAMPORTS_PER_SOL * 1e6;
+  const vts = await Promise.all(
+    transaction.ixs.map((tx) =>
+      createVersionedTransaction(
+        connection,
+        tx,
+        transaction.signers ?? [],
+        wallet.publicKey,
+        priorityFee,
+        transaction.atas ?? [],
+      ),
+    ),
+  );
+
   const tx = sendTransaction(
     connection,
     transaction.ixs,
@@ -123,7 +154,21 @@ export const executeTx = async (
 
   if (transaction.description) {
     toast.promise(tx, {
-      loading: `${transaction.description}`,
+      loading: (
+        <div className="flex flex-col gap-2">
+          <p>{transaction.description}</p>
+          {vts.map((vt, i) => (
+            <Link
+              to={makeURL(vt.transaction).toString()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex gap-2"
+            >
+              Inspect {i} <FaExternalLinkAlt />
+            </Link>
+          ))}
+        </div>
+      ),
       success: (data) => (
         <div className="text-sm">
           <p>Transaction successful! Your transaction hash:</p>

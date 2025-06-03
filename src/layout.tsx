@@ -11,6 +11,8 @@ import {
   FaHome,
   FaChevronUp,
   FaArrowRight,
+  FaExternalLinkAlt,
+  FaGithubAlt,
 } from "react-icons/fa";
 import {
   MdSignalCellular1Bar,
@@ -47,7 +49,7 @@ import {
 import { SidebarLayout } from "./components/sidebar-layout";
 import SolBalance from "./components/solBalance";
 import clsx from "clsx";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "./components/button";
 
 function AccountDropdownMenu({
@@ -168,6 +170,7 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
               <SidebarItem>
                 <Avatar className="w-10 h-10" src="/logo.png" />
                 <Heading>Tools</Heading>
+                <div className="text-xs text-gray-500">By Mesh Validator</div>
               </SidebarItem>
               {/* <DropdownButton as={SidebarItem}>
                 <Avatar src="/images/logo.png" />
@@ -267,6 +270,20 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                   <SidebarLabel className="text-xs">0.01 SOL</SidebarLabel>
                 </SidebarItem>
               </div>
+
+              <Link to="https://github.com/rdev42/solana-tools" target="_blank">
+                <SidebarItem className="hover:bg-transparent">
+                  <SidebarLabel className="flex w-full gap-2 items-center text-xs">
+                    <div>
+                      <FaGithubAlt />
+                    </div>
+                    <div className="w-full">Github</div>
+                    <div>
+                      <FaExternalLinkAlt />
+                    </div>
+                  </SidebarLabel>
+                </SidebarItem>
+              </Link>
             </SidebarSection>
           </SidebarBody>
 
