@@ -9,65 +9,34 @@ import { Input } from "../components/input";
 import { Heading } from "../components/heading";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import {
-  AddressLookupTableAccount,
-  AddressLookupTableProgram,
-  PublicKey,
-} from "@solana/web3.js";
-import invariant from "tiny-invariant";
-import { executeTx } from "../helpers/transaction";
+import { AddressLookupTableAccount, PublicKey } from "@solana/web3.js";
 import { useDeactivateLUT } from "../hooks/lut/useDeactivateLUT";
 import { useCloseLUT } from "../hooks/lut/useCloseLUT";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGetLUTsByWalletAuthority } from "../hooks/lut/useGetLUTsByWalletAuthority";
+import { useCreateLUT } from "../hooks/lut/useCreateLUT";
+import { useExtendLUT } from "../hooks/lut/useExtendLUT";
 
 const CreateLutForm = () => {
-  const [pending, setPending] = useState<boolean>(false);
-  const [lut, setLUT] = useState<PublicKey | null>();
-  const { connection } = useConnection();
-  const { wallet } = useWallet();
-  const anchorWallet = useAnchorWallet();
+  const navigate = useNavigate();
+
+  const { mutateAsync: createLUT, isPending: createLUTPending } =
+    useCreateLUT();
+  const { handleSubmit } = useForm();
 
   const onCreateLUT = async () => {
-    invariant(wallet?.adapter.publicKey, "Wallet is not connected");
-    invariant(anchorWallet, "Anchor wallet is not connected");
-    setPending(true);
-
-    const [ix, key] = AddressLookupTableProgram.createLookupTable({
-      authority: wallet.adapter.publicKey,
-      payer: wallet.adapter.publicKey,
-      recentSlot: await connection.getSlot(),
-    });
-
-    await executeTx(
-      connection,
-      {
-        ixs: [[ix]],
-        description: "Create LUT",
-        signers: [],
-      },
-      anchorWallet,
-    );
-    setLUT(key);
-    setPending(false);
+    const key = await createLUT();
+    navigate(`/luts/${key.toString()}`);
   };
-
-  const { handleSubmit } = useForm();
 
   return (
     <form onSubmit={handleSubmit(onCreateLUT)} className="space-y-6">
       <Heading>LUT management</Heading>
 
       <section className="grid gap-x-8 gap-y-6">
-        <Button color="green" type="submit" disabled={pending}>
-          {pending ? "Creating..." : "Create LUT"}
+        <Button color="green" type="submit" disabled={createLUTPending}>
+          {createLUTPending ? "Creating..." : "Create LUT"}
         </Button>
-        {lut && (
-          <div className="text-sm text-gray-500">
-            LUT created:{" "}
-            <a href={`https://solscan.io/account/${lut}`}>{lut.toString()}</a>
-          </div>
-        )}
       </section>
     </form>
   );
@@ -76,13 +45,11 @@ const CreateLutForm = () => {
 const ExtendLUTForm = () => {
   const { lut } = useParams();
   const navigate = useNavigate();
-  const [pending, setPending] = useState<boolean>(false);
   const { connection } = useConnection();
   const [lutInfo, setLUTInfo] = useState<AddressLookupTableAccount | null>(
     null,
   );
   const { wallet } = useWallet();
-  const anchorWallet = useAnchorWallet();
 
   const { register, handleSubmit } = useForm<{
     lut: string;
@@ -100,42 +67,20 @@ const ExtendLUTForm = () => {
     }
   }, [lut, connection]);
 
-  const onExtendLUT = async (data: { lut: string; luts: string }) => {
-    invariant(wallet?.adapter.publicKey, "Wallet is not connected");
-    invariant(anchorWallet, "Anchor wallet is not connected");
-    setPending(true);
-
-    const luts = data.luts.split(",");
-    const lutKeys = luts.map((lut) => new PublicKey(lut));
-
-    const ix = AddressLookupTableProgram.extendLookupTable({
-      lookupTable: new PublicKey(data.lut),
-      payer: wallet.adapter.publicKey,
-      authority: wallet.adapter.publicKey,
-      addresses: lutKeys,
-    });
-
-    await executeTx(
-      connection,
-      {
-        ixs: [[ix]],
-        description: "Create LUT",
-        signers: [],
-      },
-      anchorWallet,
-    );
-    setPending(false);
-  };
-
+  const { mutate: extendLUT, isPending: extendLUTPending } = useExtendLUT();
   const { mutate: deactivateLUT, isPending: deactivateLUTPending } =
     useDeactivateLUT();
-
   const { mutate: closeLUT, isPending: closeLUTPending } = useCloseLUT();
 
   const { data: myLuts } = useGetLUTsByWalletAuthority();
 
   return (
-    <form onSubmit={handleSubmit(onExtendLUT)} className="space-y-6 my-4">
+    <form
+      onSubmit={handleSubmit((data) =>
+        extendLUT({ lut, luts: data.luts.split(",") }),
+      )}
+      className="space-y-6 my-4"
+    >
       {myLuts && myLuts.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-white mb-4">My LUTs</h2>
@@ -170,8 +115,8 @@ const ExtendLUTForm = () => {
               placeholder="New LUTs (comma separated)"
               {...register("luts")}
             />
-            <Button color="green" type="submit" disabled={pending}>
-              {pending ? "Extending..." : "Extend LUT"}
+            <Button color="green" type="submit" disabled={extendLUTPending}>
+              {extendLUTPending ? "Extending..." : "Extend LUT"}
             </Button>
           </>
         ) : undefined}

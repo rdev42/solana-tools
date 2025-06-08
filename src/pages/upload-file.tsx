@@ -47,12 +47,19 @@ const UploadFilePage: React.FC = () => {
           </Button>
         </section>
         {id && (
-          <p className="text-sm text-gray-500">
-            File uploaded:{" "}
-            <a href={`https://gateway.irys.xyz/${id}`} target="_blank">
-              https://gateway.irys.xyz/{id}
-            </a>
-          </p>
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <p className="text-sm text-gray-300">
+              File uploaded successfully! View at:{" "}
+              <a
+                href={`https://gateway.irys.xyz/${id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 break-all"
+              >
+                https://gateway.irys.xyz/{id}
+              </a>
+            </p>
+          </div>
         )}
       </form>
     </>

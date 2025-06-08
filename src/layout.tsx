@@ -13,6 +13,7 @@ import {
   FaArrowRight,
   FaExternalLinkAlt,
   FaGithubAlt,
+  FaPiggyBank,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import {
@@ -52,6 +53,37 @@ import SolBalance from "./components/solBalance";
 import clsx from "clsx";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./components/button";
+import { useStakeSol } from "./hooks/useStakeSol";
+import { Input } from "./components/input";
+
+const StakeDialog = () => {
+  const { mutate: stake, isPending } = useStakeSol();
+  const [amount, setAmount] = useState(0);
+
+  return (
+    <div className="space-y-1">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          Amount (SOL)
+        </label>
+        <Input
+          type="number"
+          min={0}
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+      </div>
+      <Button
+        onClick={() => stake(amount)}
+        disabled={isPending || amount <= 0}
+        className="w-full"
+        color="green"
+      >
+        {isPending ? "Staking..." : "Stake"}
+      </Button>
+    </div>
+  );
+};
 
 function AccountDropdownMenu({
   anchor,
@@ -153,6 +185,7 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
     0.0001,
   );
   const [priorityFeeDialogOpen, setPriorityFeeDialogOpen] = useState(false);
+  const [stakeDialogOpen, setStakeDialogOpen] = useState(false);
 
   return (
     <SidebarLayout
@@ -230,6 +263,29 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
             <SidebarSpacer />
 
             <SidebarSection>
+              <SidebarItem
+                className="hover:bg-transparent"
+                onClick={() => {
+                  setStakeDialogOpen(!stakeDialogOpen);
+                }}
+              >
+                <SidebarLabel className="flex w-full gap-2 items-center text-xs">
+                  <div>
+                    <FaPiggyBank />
+                  </div>
+                  <div className="w-full">Stake to Mesh</div>
+                  <div>{stakeDialogOpen ? <FaCaretDown /> : <FaCaretUp />}</div>
+                </SidebarLabel>
+              </SidebarItem>
+              <div
+                className={clsx(
+                  "h-0 overflow-hidden transition-[height] duration-300 ease-in-out",
+                  stakeDialogOpen ? "h-[100px]" : "h-0",
+                )}
+              >
+                <StakeDialog />
+              </div>
+
               <SidebarItem
                 className="hover:bg-transparent"
                 onClick={() => {
