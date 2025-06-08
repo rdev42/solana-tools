@@ -9,8 +9,8 @@ export default function Router() {
     <Routes>
       <Route index element={<UploadFilePage />} />
       <Route path="create-token" element={<CreateTokenPage />} />
-      <Route path="manage-token" element={<ManageTokenPage />} />
-      <Route path="luts" element={<LutsPage />} />
+      <Route path="manage-token/:mint?" element={<ManageTokenPage />} />
+      <Route path="luts/:lut?" element={<LutsPage />} />
     </Routes>
   );
 }

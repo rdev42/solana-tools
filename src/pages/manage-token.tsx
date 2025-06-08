@@ -4,6 +4,7 @@ import {
   useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
+import { PulseLoader } from "react-spinners";
 import { Button } from "../components/button";
 import { Input } from "../components/input";
 import { Heading } from "../components/heading";
@@ -15,21 +16,81 @@ import {
 import { PublicKey } from "@solana/web3.js";
 import invariant from "tiny-invariant";
 import { executeTx } from "../helpers/transaction";
-import { useGetToken } from "../hooks/useGetToken";
+import { useGetToken, type Token } from "../hooks/useGetToken";
 import { toast } from "sonner";
 import { MintTokenForm } from "../components/Manage/MintTokenForm";
 import { updateMetadataIx } from "../helpers/updateMetadataIx";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSetAuthority } from "../hooks/token/useSetAuthority";
+
+const MintSettings = ({ token }: { token: Token }) => {
+  const [newMintAuthority, setNewMintAuthority] = useState<string>("");
+  const { mutate: setAuthority, isPending } = useSetAuthority();
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-6 space-y-4">
+      <h3 className="text-lg font-medium">Mint settings</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="text-gray-400">Current Mint Authority</div>
+        <div>
+          {token.mint.mintAuthority &&
+          token.mint.mintAuthority.__option === "Some"
+            ? token.mint.mintAuthority.value.toString()
+            : "No mint authority"}
+        </div>
+      </div>
+      <div className="space-y-4">
+        <Input
+          type="text"
+          placeholder="New mint authority address"
+          onChange={(e) => setNewMintAuthority(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <Button
+            color="blue"
+            disabled={isPending || !newMintAuthority}
+            onClick={() =>
+              setAuthority({
+                mint: new PublicKey(token.mint.publicKey.toString()),
+                newAuthority: new PublicKey(newMintAuthority),
+                authorityType: AuthorityType.MintTokens,
+              })
+            }
+          >
+            Update Authority
+          </Button>
+          <Button
+            color="red"
+            disabled={isPending}
+            onClick={() =>
+              setAuthority({
+                mint: new PublicKey(token.mint.publicKey.toString()),
+                newAuthority: null,
+                authorityType: AuthorityType.MintTokens,
+              })
+            }
+          >
+            Revoke
+          </Button>
+        </div>
+
+        <hr />
+        <MintTokenForm token={token} />
+      </div>
+    </div>
+  );
+};
 
 const ManageTokenPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { mint } = useParams();
   const [pending, setPending] = useState<boolean>(false);
-  const [mint, setMint] = useState<string>("");
-  const [newMintAuthority, setNewMintAuthority] = useState<string>("");
   const [newFreezeAuthority, setNewFreezeAuthority] = useState<string>("");
   const [newUpdateAuthority, setNewUpdateAuthority] = useState<string>("");
   const { connection } = useConnection();
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
-  const { data: token } = useGetToken(mint);
+  const { data: token, isLoading } = useGetToken(mint ?? "");
 
   return (
     <>
@@ -40,10 +101,17 @@ const ManageTokenPage: React.FC = () => {
           type="text"
           placeholder="Mint"
           value={mint}
-          onChange={(e) => setMint(e.target.value)}
+          onChange={(e) => {
+            navigate(`/manage-token/${e.target.value}`);
+          }}
         />
       </section>
-      {token && (
+      {isLoading && (
+        <div className="flex justify-center items-center h-full my-4">
+          <PulseLoader color="#fff" />
+        </div>
+      )}
+      {token && mint && !isLoading && (
         <section className="mt-8 space-y-4 text-white">
           <h2 className="text-xl font-semibold">Token Details</h2>
           <div className="bg-gray-800 rounded-lg p-6 space-y-4">
@@ -61,108 +129,8 @@ const ManageTokenPage: React.FC = () => {
               <div>{token.image}</div>
             </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-medium">Mint settings</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-gray-400">Current Mint Authority</div>
-              <div>
-                {token.mint.mintAuthority &&
-                token.mint.mintAuthority.__option === "Some"
-                  ? token.mint.mintAuthority.value.toString()
-                  : "No mint authority"}
-              </div>
-            </div>
-            <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="New mint authority address"
-                onChange={(e) => setNewMintAuthority(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <Button
-                  color="blue"
-                  disabled={pending || !newMintAuthority}
-                  onClick={async () => {
-                    try {
-                      setPending(true);
-                      invariant(
-                        wallet?.adapter.publicKey,
-                        "Wallet not connected",
-                      );
-                      invariant(anchorWallet, "Anchor wallet not connected");
+          <MintSettings token={token} />
 
-                      const tx = createSetAuthorityInstruction(
-                        new PublicKey(mint),
-                        wallet.adapter.publicKey,
-                        AuthorityType.MintTokens,
-                        new PublicKey(newMintAuthority),
-                      );
-
-                      await executeTx(
-                        connection,
-                        {
-                          ixs: [[tx]],
-                          description: "Update mint authority",
-                        },
-                        anchorWallet,
-                      );
-
-                      toast.success("Mint authority updated successfully");
-                    } catch (err) {
-                      console.error(err);
-                      toast.error("Failed to update mint authority");
-                    } finally {
-                      setPending(false);
-                    }
-                  }}
-                >
-                  Update Authority
-                </Button>
-                <Button
-                  color="red"
-                  disabled={pending}
-                  onClick={async () => {
-                    try {
-                      setPending(true);
-                      invariant(
-                        wallet?.adapter.publicKey,
-                        "Wallet not connected",
-                      );
-                      invariant(anchorWallet, "Anchor wallet not connected");
-
-                      const tx = createSetAuthorityInstruction(
-                        new PublicKey(mint),
-                        wallet.adapter.publicKey,
-                        AuthorityType.MintTokens,
-                        null,
-                      );
-
-                      await executeTx(
-                        connection,
-                        {
-                          ixs: [[tx]],
-                          description: "Revoke mint authority",
-                        },
-                        anchorWallet,
-                      );
-
-                      toast.success("Mint authority revoked successfully");
-                    } catch (err) {
-                      console.error(err);
-                      toast.error("Failed to update mint authority");
-                    } finally {
-                      setPending(false);
-                    }
-                  }}
-                >
-                  Revoke
-                </Button>
-              </div>
-
-              <hr />
-              <MintTokenForm mint={mint} />
-            </div>
-          </div>
           <div className="bg-gray-800 rounded-lg p-6 space-y-4">
             <h3 className="text-lg font-medium">Freeze account settings</h3>
             <div className="grid grid-cols-2 gap-4">

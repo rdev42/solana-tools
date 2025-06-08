@@ -25,6 +25,10 @@ const CreateTokenPage: React.FC = () => {
         className="space-y-6"
       >
         <Heading>Create token</Heading>
+        <p className="text-sm text-gray-500">
+          Files are uploaded to the IRYS Gateway. If your wallet is unfunded, it
+          will create a transaction to fund with 0.01 SOL.
+        </p>
 
         <section className="grid gap-x-8 gap-y-6">
           <Input

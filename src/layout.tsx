@@ -14,6 +14,7 @@ import {
   FaExternalLinkAlt,
   FaGithubAlt,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import {
   MdSignalCellular1Bar,
   MdSignalCellular3Bar,
@@ -278,6 +279,19 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                       <FaGithubAlt />
                     </div>
                     <div className="w-full">Github</div>
+                    <div>
+                      <FaExternalLinkAlt />
+                    </div>
+                  </SidebarLabel>
+                </SidebarItem>
+              </Link>
+              <Link to="https://x.com/meshvalidator" target="_blank">
+                <SidebarItem className="hover:bg-transparent">
+                  <SidebarLabel className="flex w-full gap-2 items-center text-xs">
+                    <div>
+                      <FaXTwitter />
+                    </div>
+                    <div className="w-full">Twitter</div>
                     <div>
                       <FaExternalLinkAlt />
                     </div>

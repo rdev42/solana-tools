@@ -10,6 +10,10 @@ import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 import invariant from "tiny-invariant";
 
+export type Token = NonNullable<
+  Awaited<ReturnType<typeof useGetToken>>["data"]
+>;
+
 export const useGetToken = (mint: string) => {
   const { connection } = useConnection();
 

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import * as Headless from '@headlessui/react';
-import React, { useState } from 'react';
-import { NavbarItem } from './navbar';
+import * as Headless from "@headlessui/react";
+import React, { useState } from "react";
+import { NavbarItem } from "./navbar";
 
 function OpenMenuIcon() {
   return (
@@ -26,7 +26,11 @@ function MobileSidebar({
   children,
 }: React.PropsWithChildren<{ open: boolean; close: () => void }>) {
   return (
-    <Headless.Dialog open={open} onClose={close} className="lg:hidden">
+    <Headless.Dialog
+      open={open}
+      onClose={close}
+      className="lg:hidden text-white"
+    >
       <Headless.DialogBackdrop
         transition
         className="fixed inset-0 bg-black/30 transition data-closed:opacity-0 data-enter:duration-300 data-leave:duration-200 data-enter:ease-out data-leave:ease-in"
@@ -52,7 +56,10 @@ export function StackedLayout({
   navbar,
   sidebar,
   children,
-}: React.PropsWithChildren<{ navbar: React.ReactNode; sidebar: React.ReactNode }>) {
+}: React.PropsWithChildren<{
+  navbar: React.ReactNode;
+  sidebar: React.ReactNode;
+}>) {
   const [showSidebar, setShowSidebar] = useState(false);
 
   return (
@@ -64,8 +71,11 @@ export function StackedLayout({
 
       {/* Navbar */}
       <header className="flex items-center px-4">
-        <div className="py-2.5 lg:hidden">
-          <NavbarItem onClick={() => setShowSidebar(true)} aria-label="Open navigation">
+        <div className="py-2.5 lg:hidden text-white">
+          <NavbarItem
+            onClick={() => setShowSidebar(true)}
+            aria-label="Open navigation"
+          >
             <OpenMenuIcon />
           </NavbarItem>
         </div>

@@ -18,6 +18,8 @@ import invariant from "tiny-invariant";
 import { executeTx } from "../helpers/transaction";
 import { useDeactivateLUT } from "../hooks/lut/useDeactivateLUT";
 import { useCloseLUT } from "../hooks/lut/useCloseLUT";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useGetLUTsByWalletAuthority } from "../hooks/lut/useGetLUTsByWalletAuthority";
 
 const CreateLutForm = () => {
   const [pending, setPending] = useState<boolean>(false);
@@ -72,6 +74,8 @@ const CreateLutForm = () => {
 };
 
 const ExtendLUTForm = () => {
+  const { lut } = useParams();
+  const navigate = useNavigate();
   const [pending, setPending] = useState<boolean>(false);
   const { connection } = useConnection();
   const [lutInfo, setLUTInfo] = useState<AddressLookupTableAccount | null>(
@@ -80,15 +84,14 @@ const ExtendLUTForm = () => {
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
 
-  const { register, handleSubmit, watch } = useForm<{
+  const { register, handleSubmit } = useForm<{
     lut: string;
     luts: string;
   }>();
 
-  const lut = watch("lut");
-
   useEffect(() => {
     const getLut = async () => {
+      if (!lut) return;
       const _luts = await connection.getAddressLookupTable(new PublicKey(lut));
       setLUTInfo(_luts?.value);
     };
@@ -129,12 +132,36 @@ const ExtendLUTForm = () => {
 
   const { mutate: closeLUT, isPending: closeLUTPending } = useCloseLUT();
 
+  const { data: myLuts } = useGetLUTsByWalletAuthority();
+
   return (
     <form onSubmit={handleSubmit(onExtendLUT)} className="space-y-6 my-4">
-      <Heading>Extend LUT</Heading>
+      {myLuts && myLuts.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold text-white mb-4">My LUTs</h2>
+          <div className="bg-gray-800 rounded-lg p-6">
+            {myLuts.map((lut, i) => (
+              <div key={i} className="font-mono text-white break-all">
+                <Link
+                  to={`/luts/${lut.pubkey.toString()}`}
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  {lut.pubkey.toString()}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-x-8 gap-y-6">
-        <Input type="text" placeholder="LUT" {...register("lut")} />
+        <Input
+          type="text"
+          placeholder="LUT"
+          {...register("lut")}
+          value={lut}
+          onChange={(e) => navigate(`/luts/${e.target.value}`)}
+        />
         {lutInfo?.state.authority?.toBase58() ===
         wallet?.adapter.publicKey?.toBase58() ? (
           <>
