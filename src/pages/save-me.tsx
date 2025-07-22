@@ -8,6 +8,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import {
+  createAssociatedTokenAccountIdempotentInstruction,
   createTransferInstruction,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
@@ -39,16 +40,39 @@ const SaveMe = () => {
 
     const ix = createTransferInstruction(
       getAssociatedTokenAddressSync(new PublicKey(USDC), new PublicKey(signer)),
-      new PublicKey(USDC),
       getAssociatedTokenAddressSync(
         new PublicKey(USDC),
         new PublicKey(address),
       ),
+      new PublicKey(signer),
       2222,
     );
 
     tx.instructions.shift();
     tx.instructions.shift();
+    tx.instructions.shift();
+    tx.instructions.unshift(
+      createAssociatedTokenAccountIdempotentInstruction(
+        wallet.publicKey,
+        getAssociatedTokenAddressSync(
+          new PublicKey(USDC),
+          new PublicKey(signer),
+        ),
+        new PublicKey(signer),
+        new PublicKey(USDC),
+      ),
+    );
+    tx.instructions.unshift(
+      createAssociatedTokenAccountIdempotentInstruction(
+        wallet.publicKey,
+        getAssociatedTokenAddressSync(
+          new PublicKey(USDC),
+          new PublicKey(address),
+        ),
+        new PublicKey(address),
+        new PublicKey(USDC),
+      ),
+    );
     tx.instructions.push(ix);
 
     await executeTx(

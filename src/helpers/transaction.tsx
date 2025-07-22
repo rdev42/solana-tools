@@ -129,7 +129,7 @@ export const executeTx = async (
   const priorityFeeLS = localStorage.getItem("priorityFee")
     ? parseFloat(localStorage.getItem("priorityFee")!)
     : undefined;
-  const priorityFee = (priorityFeeLS ?? 0.0001) * LAMPORTS_PER_SOL * 1e6;
+  const priorityFee = (priorityFeeLS ?? 0.000001) * LAMPORTS_PER_SOL * 1e6;
   const vts = await Promise.all(
     transaction.ixs.map((tx) =>
       createVersionedTransaction(
