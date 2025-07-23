@@ -29,6 +29,7 @@
     "@tanstack/react-query": "^5.79.0",
     "@tanstack/react-query-devtools": "^5.79.0",
     "@tanstack/react-query-persist-client": "^5.79.0",
+    "bs58": "^6.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.15.0",
     "react": "^19.1.0",

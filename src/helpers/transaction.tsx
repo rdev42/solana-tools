@@ -26,7 +26,8 @@ const sendTransaction = async (
   wallet: AnchorWallet,
   commitment?: Commitment,
   atas?: AddressLookupTableAccount[],
-  onSuccess?: (tx: string) => void,
+  nonce?: string,
+  signatures?: Record<string, string>,
 ): Promise<string> => {
   if (!wallet.publicKey) {
     return "No wallet connected";
@@ -46,9 +47,15 @@ const sendTransaction = async (
         wallet.publicKey,
         priorityFee,
         atas,
+        undefined,
+        nonce,
+        signatures,
       ),
     ),
   );
+
+  console.log(Buffer.from(vts[0].transaction.serialize()).toString("base64"));
+
   const signedTransactions = await wallet.signAllTransactions(
     vts.map((vt) => vt.transaction),
   );
@@ -84,15 +91,12 @@ const sendTransaction = async (
             wallet,
             commitment,
             atas,
-            onSuccess,
+            nonce,
           );
         }
       }
     }),
   );
-
-  // Add toast
-  onSuccess?.(hashes[0] ?? "");
 
   if (hashes[0]) {
     return hashes[0];
@@ -122,6 +126,8 @@ export const executeTx = async (
   },
   wallet: AnchorWallet,
   commitment?: Commitment,
+  nonce?: string,
+  signatures?: Record<string, string>,
 ) => {
   invariant(wallet.publicKey);
 
@@ -150,6 +156,8 @@ export const executeTx = async (
     wallet,
     commitment,
     transaction.atas ?? [],
+    nonce,
+    signatures,
   );
 
   if (transaction.description) {

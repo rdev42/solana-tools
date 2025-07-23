@@ -8,6 +8,7 @@ import {
   AddressLookupTableAccount,
   type Signer,
 } from "@solana/web3.js";
+import bs58 from "bs58";
 
 const deduplicateTXs = (txs: TransactionInstruction[]) => {
   return txs.filter(
@@ -53,6 +54,8 @@ export const createVersionedTransaction = async (
   priorityFee: number,
   atas?: AddressLookupTableAccount[],
   minCU = 0,
+  nonce?: string,
+  signatures?: Record<string, string>,
 ) => {
   // Remove compute budget program stuff and append this instead
   // Also remove duplicates
@@ -78,9 +81,10 @@ export const createVersionedTransaction = async (
       microLamports: Math.ceil(priorityFee / CUs),
     }),
   );
+
   const messageV0 = new TransactionMessage({
     payerKey,
-    recentBlockhash: latestBlockhash.blockhash,
+    recentBlockhash: nonce ?? latestBlockhash.blockhash,
     instructions: txs,
   }).compileToV0Message(atas);
   const transaction = new VersionedTransaction(messageV0);
@@ -93,6 +97,15 @@ export const createVersionedTransaction = async (
       txSigners.map((x) => x.toString()).includes(s.publicKey.toString()),
     ),
   );
+
+  if (signatures) {
+    Object.entries(signatures).forEach(([publickey, signature]) => {
+      transaction.addSignature(
+        new PublicKey(publickey),
+        new Uint8Array(bs58.decode(signature)),
+      );
+    });
+  }
 
   return { transaction, latestBlockhash };
 };

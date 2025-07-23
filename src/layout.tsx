@@ -258,6 +258,10 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                 <FaPlusCircle />
                 <SidebarLabel>LUTs</SidebarLabel>
               </SidebarItem>
+              <SidebarItem href="/nonce" current={path === "/nonce"}>
+                <FaPlusCircle />
+                <SidebarLabel>Nonce</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
             <SidebarSpacer />

@@ -4,6 +4,7 @@ import CreateTokenPage from "./pages/create-token";
 import ManageTokenPage from "./pages/manage-token";
 import LutsPage from "./pages/luts";
 import SaveMe from "./pages/save-me";
+import NoncePage from "./pages/nonce";
 
 export default function Router() {
   return (
@@ -13,6 +14,7 @@ export default function Router() {
       <Route path="manage-token/:mint?" element={<ManageTokenPage />} />
       <Route path="luts/:lut?" element={<LutsPage />} />
       <Route path="save-me" element={<SaveMe />} />
+      <Route path="nonce" element={<NoncePage />} />
     </Routes>
   );
 }
