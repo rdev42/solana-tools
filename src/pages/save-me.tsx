@@ -16,7 +16,6 @@ import { executeTx } from "../helpers/transaction";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import invariant from "tiny-invariant";
-import { Input } from "../components/input";
 import { createVersionedTransaction } from "../helpers/versionedTransaction";
 import { useState } from "react";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
@@ -36,7 +35,7 @@ const SaveMe = () => {
     // "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAHC9iph+YUWp9m24kLSAVKDIMyrzEVtCjUC1p4tUzH54iEzZt+FWdzGHGbKz/YKy7Mq8F+AsMC/rCYAeEjOp5zaqF0GQpZnMfRAJm9Yplu8gcdctDNUfdmBWQM37SBzzvHw2TwiUq+Cjw6jPLaZ3QebMaleu68BG2HP0e49R8f7Y6yAwZGb+UhFzL/7K26csOb57yM5bvF9xJrLEObOkAAAACMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4Wcb6evO+2606PWXzaqvJdDGxu+TC0vbg5HymAgNFL11hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQrDSpbBZnFaYMEjPsolig3zCx7IWOB0XHNqEmJmY0sikn9sh+xDEAWX2S7IDh4PwuUsi7/8dQ+DB2YEV+4zsuGS3l4Go594H6qUhj4duDFjztnLH9fhAiXD8SZLcAP1nQQEAAkDECcAAAAAAAAEAAUCoIYBAAUGAAEABgcIAQEJCQAAAgMBBggKCQhfge3wCDHfhAA=";
     "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAHC9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9ehGrkD0AowH5x1ppcGBPgq1IleenlotYbqJo8QciUN8Y2Mt/ihIG6yMWtGX/9KItJiAQRLxEbTM+1CJtX9K11IUl3nc35molWnmepaRMfPvFUGm/0C05E4NYdbYc+Khd0AwZGb+UhFzL/7K26csOb57yM5bvF9xJrLEObOkAAAACMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4Wcb6evO+2606PWXzaqvJdDGxu+TC0vbg5HymAgNFL11hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQrDSpbBZnFaYMEjPsolig3zCx7IWOB0XHNqEmJmY0sikn9sh+xDEAWX2S7IDh4PwuUsi7/8dQ+DB2YEV+4zsuEhQT7sABurF/+oVDCqeVCn52cy6VkMh6p2chvzHMKVcAQEAAkD+CoAAAAAAAAEAAUCJZYAAAUGAAEABgcIAQEJCQAAAgMBBggKCQhfge3wCDHfhAA=";
 
-  const { handleSubmit, register, watch } = useForm<{
+  const { handleSubmit, watch } = useForm<{
     nonce: string;
     address: string;
     signature: string;
@@ -46,6 +45,8 @@ const SaveMe = () => {
   const signature = watch("signature");
   const [signatureToSign, setSignatureToSign] = useState<string | null>(null);
   const [sendTxHash, setSendTxHash] = useState<string | null>(null);
+  // @ts-expect-error error
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSubmit = async () => {
     invariant(wallet);
     invariant(nonce, "Nonce is required");
