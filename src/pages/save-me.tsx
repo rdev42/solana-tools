@@ -23,7 +23,7 @@ import { useState } from "react";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 const testSerializedTX =
-  "AlGWhyvsv0kF4nPqgt35lo0CzQJOI4M4UMTJ6t2Va/hELPVxvhYnIBvzafp7SINP2caJNwxvvOPUgl2dJMmMKAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACRCo4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9eTTR+DokytJ8fykaljef0WPw4+qynErgF83nA/CoZuzKHE90xfEl0XrjyL+dxYSbkpPCEee1UJJ+UMfgm+qTcpoRq5A9AKMB+cdaaXBgT4KtSJXnp5aLWG6iaPEHIlDfGNjLf4oSBusjFrRl//SiLSYgEES8RG0zPtQibV/StdSFJd53N+ZqJVp5nqWkTHz7xVBpv9AtORODWHW2HPioXdAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGp9UXGSxWjuCKhF9z0peIzwNcMUWyGrNE2AYuqUAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpCsNKlsFmcVpgwSM+yiWKDfMLHshY4HRcc2oSYmZjSyKSf2yH7EMQBZfZLsgOHg/C5SyLv/x1D4MHZgRX7jOy4U00fg6JMrSfH8pGpY3n9Fj8OPqspxK4BfN5wPwqGbsyBwcACQOrYAMAAAAAAAcABQK15AYACAMCCQAEBAAAAAoGAAMLDAgNAQEKBgAEAQwIDQEBDgkBAQUGBAwNDw4IX4Ht8Agx34QNAwQDAQkDQEtMAAAAAAAA";
+  "Aj2aFLTP/WduHSIhn7wm/FVNd9Jtqtm9HNRRtrqj7kwmiVXOuoeQ7IeJxqmr0jt7rEfXlFb928joLxRTLAKLZw0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACRCo4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9eTTR+DokytJ8fykaljef0WPw4+qynErgF83nA/CoZuzKHE90xfEl0XrjyL+dxYSbkpPCEee1UJJ+UMfgm+qTcpoRq5A9AKMB+cdaaXBgT4KtSJXnp5aLWG6iaPEHIlDfGNjLf4oSBusjFrRl//SiLSYgEES8RG0zPtQibV/StdSFJd53N+ZqJVp5nqWkTHz7xVBpv9AtORODWHW2HPioXdAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGp9UXGSxWjuCKhF9z0peIzwNcMUWyGrNE2AYuqUAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpCsNKlsFmcVpgwSM+yiWKDfMLHshY4HRcc2oSYmZjSyKSf2yH7EMQBZfZLsgOHg/C5SyLv/x1D4MHZgRX7jOy4ZBzL5GWTVseTF4S1eq6YwRL2dkrSjY25BbJ0hDOGTB2BwcACQOrYAMAAAAAAAcABQK15AYACAMCCQAEBAAAAAoGAAMLDAgNAQEKBgAEAQwIDQEBDgkBAQUGBAwNDw4IX4Ht8Agx34QNAwQDAQkDQEtMAAAAAAAA";
 
 const USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 // const signer = "Fakzon26tKzdGKW5g2wvZM12y6TLvqPGgogE29Nq8ACB";
@@ -121,7 +121,7 @@ const SaveMe = () => {
         priorityFee,
         undefined,
         undefined,
-        noncePk.publicKey.toString(),
+        "Aisac6DYWYmeGgDz7MbCrLc3pAy1kHizMCxiXJdEvEWy",
       );
 
       // txToSign.transaction.sign([noncePk]);
@@ -153,6 +153,8 @@ const SaveMe = () => {
     const tx = VersionedTransaction.deserialize(
       Buffer.from(testSerializedTX, "base64"),
     );
+    console.log(tx);
+    console.log(tx.message.recentBlockhash);
     console.log(testSerializedTX);
     const signed = await wallet.signTransaction(tx);
     const hash = await connection.sendRawTransaction(signed.serialize());
