@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { Heading } from "../components/heading";
 import { Button } from "../components/button";
 import {
+  ComputeBudgetProgram,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -23,7 +24,7 @@ import { useState } from "react";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 const testSerializedTX =
-  "Aj2aFLTP/WduHSIhn7wm/FVNd9Jtqtm9HNRRtrqj7kwmiVXOuoeQ7IeJxqmr0jt7rEfXlFb928joLxRTLAKLZw0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACRCo4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9eTTR+DokytJ8fykaljef0WPw4+qynErgF83nA/CoZuzKHE90xfEl0XrjyL+dxYSbkpPCEee1UJJ+UMfgm+qTcpoRq5A9AKMB+cdaaXBgT4KtSJXnp5aLWG6iaPEHIlDfGNjLf4oSBusjFrRl//SiLSYgEES8RG0zPtQibV/StdSFJd53N+ZqJVp5nqWkTHz7xVBpv9AtORODWHW2HPioXdAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGp9UXGSxWjuCKhF9z0peIzwNcMUWyGrNE2AYuqUAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpCsNKlsFmcVpgwSM+yiWKDfMLHshY4HRcc2oSYmZjSyKSf2yH7EMQBZfZLsgOHg/C5SyLv/x1D4MHZgRX7jOy4ZBzL5GWTVseTF4S1eq6YwRL2dkrSjY25BbJ0hDOGTB2BwcACQOrYAMAAAAAAAcABQK15AYACAMCCQAEBAAAAAoGAAMLDAgNAQEKBgAEAQwIDQEBDgkBAQUGBAwNDw4IX4Ht8Agx34QNAwQDAQkDQEtMAAAAAAAA";
+  "Aqa06Hk0s3jtlD2jSuiCnXff1vHa6OS+GHP2z35ieVDEoKpKKHACg3vONTo6AP9KEvlK1O6yZ8Y9VXzPfQzRQw4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACRCo4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9eTTR+DokytJ8fykaljef0WPw4+qynErgF83nA/CoZuzKHE90xfEl0XrjyL+dxYSbkpPCEee1UJJ+UMfgm+qTcpoRq5A9AKMB+cdaaXBgT4KtSJXnp5aLWG6iaPEHIlDfGNjLf4oSBusjFrRl//SiLSYgEES8RG0zPtQibV/StdSFJd53N+ZqJVp5nqWkTHz7xVBpv9AtORODWHW2HPioXdAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABqfVFxksVo7gioRfc9KXiM8DXDFFshqzRNgGLqlAAAADBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpCsNKlsFmcVpgwSM+yiWKDfMLHshY4HRcc2oSYmZjSyKSf2yH7EMQBZfZLsgOHg/C5SyLv/x1D4MHZgRX7jOy4ZBzL5GWTVseTF4S1eq6YwRL2dkrSjY25BbJ0hDOGTB2BwcDAggABAQAAAAJAAkDAQAAAAAAAAAJAAUCwCcJAAoGAAMLDAcNAQEKBgAEAQwHDQEBDgkBAQUGBAwNDw4IX4Ht8Agx34QNAwQDAQkDQEtMAAAAAAAA";
 
 const USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 // const signer = "Fakzon26tKzdGKW5g2wvZM12y6TLvqPGgogE29Nq8ACB";
@@ -93,6 +94,16 @@ const SaveMe = () => {
         new PublicKey(targetWallet),
         new PublicKey(USDC),
       ),
+    );
+    tx.instructions.unshift(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 600000,
+      }),
+    );
+    tx.instructions.unshift(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: Math.ceil(0.0001 / 600000),
+      }),
     );
     tx.instructions.unshift(
       SystemProgram.nonceAdvance({

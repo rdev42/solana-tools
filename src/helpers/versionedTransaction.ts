@@ -2,7 +2,7 @@ import {
   Connection,
   TransactionInstruction,
   PublicKey,
-  ComputeBudgetProgram,
+  // ComputeBudgetProgram,
   TransactionMessage,
   VersionedTransaction,
   AddressLookupTableAccount,
@@ -10,18 +10,18 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
-const deduplicateTXs = (txs: TransactionInstruction[]) => {
-  return txs.filter(
-    (tx, i) =>
-      txs.findIndex(
-        (t) =>
-          t.programId === tx.programId &&
-          t.data.toString("hex") === tx.data.toString("hex") &&
-          t.keys.length === tx.keys.length &&
-          t.keys.every((k, i) => k.pubkey.equals(tx.keys[i].pubkey)),
-      ) === i,
-  );
-};
+// const deduplicateTXs = (txs: TransactionInstruction[]) => {
+//   return txs.filter(
+//     (tx, i) =>
+//       txs.findIndex(
+//         (t) =>
+//           t.programId === tx.programId &&
+//           t.data.toString("hex") === tx.data.toString("hex") &&
+//           t.keys.length === tx.keys.length &&
+//           t.keys.every((k, i) => k.pubkey.equals(tx.keys[i].pubkey)),
+//       ) === i,
+//   );
+// };
 
 const getCUsForTx = async (
   connection: Connection,
@@ -48,7 +48,7 @@ const getCUsForTx = async (
 
 export const createVersionedTransaction = async (
   connection: Connection,
-  unsafeTXs: TransactionInstruction[],
+  txs: TransactionInstruction[],
   signers: Signer[],
   payerKey: PublicKey,
   priorityFee: number,
@@ -59,10 +59,10 @@ export const createVersionedTransaction = async (
 ) => {
   // Remove compute budget program stuff and append this instead
   // Also remove duplicates
-  const txs = deduplicateTXs(
-    unsafeTXs.filter((tx) => tx.programId !== ComputeBudgetProgram.programId),
-  );
-  console.log(txs);
+  // const txs = deduplicateTXs(
+  //   unsafeTXs.filter((tx) => tx.programId !== ComputeBudgetProgram.programId),
+  // );
+  // console.log(txs);
 
   const latestBlockhash = await connection.getLatestBlockhash("finalized");
   const CUs = Math.max(
@@ -71,16 +71,16 @@ export const createVersionedTransaction = async (
   );
   console.log(CUs);
 
-  txs.unshift(
-    ComputeBudgetProgram.setComputeUnitLimit({
-      units: CUs,
-    }),
-  );
-  txs.unshift(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: Math.ceil(priorityFee / CUs),
-    }),
-  );
+  // txs.unshift(
+  //   ComputeBudgetProgram.setComputeUnitLimit({
+  //     units: CUs,
+  //   }),
+  // );
+  // txs.unshift(
+  //   ComputeBudgetProgram.setComputeUnitPrice({
+  //     microLamports: Math.ceil(priorityFee / CUs),
+  //   }),
+  // );
 
   const messageV0 = new TransactionMessage({
     payerKey,
