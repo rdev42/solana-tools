@@ -57,6 +57,7 @@ export const createVersionedTransaction = async (
   nonce?: string,
   signatures?: Record<string, string>,
 ) => {
+  console.log(priorityFee);
   // Remove compute budget program stuff and append this instead
   // Also remove duplicates
   // const txs = deduplicateTXs(
