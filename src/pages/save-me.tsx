@@ -2,11 +2,14 @@ import { useForm } from "react-hook-form";
 import { Heading } from "../components/heading";
 import { Button } from "../components/button";
 import {
+  Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
+  SystemProgram,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+
 import {
   createAssociatedTokenAccountIdempotentInstruction,
   createTransferInstruction,
@@ -19,9 +22,10 @@ import invariant from "tiny-invariant";
 import { createVersionedTransaction } from "../helpers/versionedTransaction";
 import { useState } from "react";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { AnchorProvider } from "@coral-xyz/anchor";
 
 const testSerializedTX =
-  "AhHV2EkyMbKEsy7bpid7+d3z3Il/We+FKNfnYkSu6DDK1IPYN+WhtJsLbELz16X6jMgeaMVi3XsM/uXrZlouUgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACA6o4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9ehxPdMXxJdF648i/ncWEm5KTwhHntVCSflDH4Jvqk3KaEauQPQCjAfnHWmlwYE+CrUiV56eWi1huomjxByJQ3xjYy3+KEgbrIxa0Zf/0oi0mIBBEvERtMz7UIm1f0rXUhSXedzfmaiVaeZ6lpEx8+8VQab/QLTkTg1h1thz4qF3QDBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKkKw0qWwWZxWmDBIz7KJYoN8wseyFjgdFxzahJiZmNLIpJ/bIfsQxAFl9kuyA4eD8LlLIu//HUPgwdmBFfuM7LhkHMvkZZNWx5MXhLV6rpjBEvZ2StKNjbkFsnSEM4ZMHYGBgAJA/tgAwAAAAAABgAFAhDkBgAHBgACCAkKCwEBBwYAAwEJCgsBAQwJAQEEBQMJCw0MCF+B7fAIMd+ECwMDAgEJA0BLTAAAAAAAAA==";
+  "AlGWhyvsv0kF4nPqgt35lo0CzQJOI4M4UMTJ6t2Va/hELPVxvhYnIBvzafp7SINP2caJNwxvvOPUgl2dJMmMKAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIACRCo4bdYTp8lE525qCQusTrw1zChDDMDcSiGn9/72f2zc9uauJyZZUimOmbLle5M/iLy4LfjbtxmndpddxpkmQ9eTTR+DokytJ8fykaljef0WPw4+qynErgF83nA/CoZuzKHE90xfEl0XrjyL+dxYSbkpPCEee1UJJ+UMfgm+qTcpoRq5A9AKMB+cdaaXBgT4KtSJXnp5aLWG6iaPEHIlDfGNjLf4oSBusjFrRl//SiLSYgEES8RG0zPtQibV/StdSFJd53N+ZqJVp5nqWkTHz7xVBpv9AtORODWHW2HPioXdAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGp9UXGSxWjuCKhF9z0peIzwNcMUWyGrNE2AYuqUAAAIyXJY9OJInxuz0QKRSODYMLWhOZ2v8QhASOe9jb6fhZQMfUybrwF1L2wIwr1UTdRCKxFu8BEbc+vSpvCTTac7/G+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpCsNKlsFmcVpgwSM+yiWKDfMLHshY4HRcc2oSYmZjSyKSf2yH7EMQBZfZLsgOHg/C5SyLv/x1D4MHZgRX7jOy4U00fg6JMrSfH8pGpY3n9Fj8OPqspxK4BfN5wPwqGbsyBwcACQOrYAMAAAAAAAcABQK15AYACAMCCQAEBAAAAAoGAAMLDAgNAQEKBgAEAQwIDQEBDgkBAQUGBAwNDw4IX4Ht8Agx34QNAwQDAQkDQEtMAAAAAAAA";
 
 const USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 // const signer = "Fakzon26tKzdGKW5g2wvZM12y6TLvqPGgogE29Nq8ACB";
@@ -40,16 +44,17 @@ const SaveMe = () => {
     address: string;
     signature: string;
   }>();
-  const nonce = watch("nonce");
-  const address = watch("address");
-  const signature = watch("signature");
+
+  const noncePk = Keypair.fromSecretKey(
+    new Uint8Array(JSON.parse(`[${import.meta.env.VITE_NONCE_KEY}]`)),
+  );
+
   const [signatureToSign, setSignatureToSign] = useState<string | null>(null);
   const [sendTxHash, setSendTxHash] = useState<string | null>(null);
   // @ts-expect-error error
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSubmit = async () => {
     invariant(wallet);
-    invariant(nonce, "Nonce is required");
 
     const tx = TransactionMessage.decompile(
       VersionedTransaction.deserialize(Buffer.from(serializedTx, "base64"))
@@ -91,6 +96,14 @@ const SaveMe = () => {
         new PublicKey(USDC),
       ),
     );
+    tx.instructions.unshift(
+      SystemProgram.nonceAdvance({
+        authorizedPubkey: new PublicKey(
+          "CNF7qAszMpHwiDit3XeMDt99bmbuL6XovstbNCzvgcQA",
+        ),
+        noncePubkey: noncePk.publicKey,
+      }),
+    );
     tx.instructions.push(ix);
 
     if (
@@ -106,12 +119,14 @@ const SaveMe = () => {
         connection,
         tx.instructions,
         [],
-        new PublicKey(address),
+        new PublicKey("CNF7qAszMpHwiDit3XeMDt99bmbuL6XovstbNCzvgcQA"),
         priorityFee,
         undefined,
         undefined,
-        nonce,
+        noncePk.publicKey.toString(),
       );
+
+      // txToSign.transaction.sign([noncePk]);
 
       const signature = await wallet.signTransaction(txToSign.transaction);
       setSignatureToSign(
@@ -121,19 +136,19 @@ const SaveMe = () => {
       console.log(Buffer.from(signature.serialize()).toString("base64"));
       return;
     }
-    await executeTx(
-      connection,
-      {
-        ixs: [tx.instructions],
-        description: "Save me",
-      },
-      wallet,
-      "confirmed",
-      nonce,
-      {
-        [signer]: signature,
-      },
-    );
+    // await executeTx(
+    //   connection,
+    //   {
+    //     ixs: [tx.instructions],
+    //     description: "Save me",
+    //   },
+    //   wallet,
+    //   "confirmed",
+    //   noncePk.publicKey.toString(),
+    //   {
+    //     [signer]: signature,
+    //   },
+    // );
   };
   const onSubmit2 = async () => {
     invariant(wallet);
