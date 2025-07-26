@@ -157,7 +157,10 @@ const SaveMe = () => {
     console.log(tx.message.recentBlockhash);
     console.log(testSerializedTX);
     const signed = await wallet.signTransaction(tx);
-    const hash = await connection.sendRawTransaction(signed.serialize());
+    console.log("signed");
+    const hash = await connection.sendTransaction(signed, {
+      skipPreflight: true,
+    });
     console.log("sent");
     setSendTxHash(hash);
   };
