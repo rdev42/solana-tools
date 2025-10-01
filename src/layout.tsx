@@ -262,6 +262,13 @@ export function ApplicationLayout({ children }: { children: React.ReactNode }) {
                 <FaPlusCircle />
                 <SidebarLabel>Nonce</SidebarLabel>
               </SidebarItem>
+              <SidebarItem
+                href="/dz-fee-address"
+                current={path === "/dz-fee-address"}
+              >
+                <FaPlusCircle />
+                <SidebarLabel>DZ fee address</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
             <SidebarSpacer />

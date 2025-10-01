@@ -5,6 +5,7 @@ import ManageTokenPage from "./pages/manage-token";
 import LutsPage from "./pages/luts";
 import SaveMe from "./pages/save-me";
 import NoncePage from "./pages/nonce";
+import DZFeeAddressPage from "./pages/dz-fee-address";
 
 export default function Router() {
   return (
@@ -15,6 +16,7 @@ export default function Router() {
       <Route path="luts/:lut?" element={<LutsPage />} />
       <Route path="save-me" element={<SaveMe />} />
       <Route path="nonce" element={<NoncePage />} />
+      <Route path="dz-fee-address" element={<DZFeeAddressPage />} />
     </Routes>
   );
 }
