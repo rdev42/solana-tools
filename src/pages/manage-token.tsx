@@ -22,6 +22,7 @@ import { MintTokenForm } from "../components/Manage/MintTokenForm";
 import { updateMetadataIx } from "../helpers/updateMetadataIx";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSetAuthority } from "../hooks/token/useSetAuthority";
+import { uploadFile } from "../helpers/uploadFile";
 
 const MintSettings = ({ token }: { token: Token }) => {
   const [newMintAuthority, setNewMintAuthority] = useState<string>("");
@@ -87,6 +88,7 @@ const ManageTokenPage: React.FC = () => {
   const [pending, setPending] = useState<boolean>(false);
   const [newFreezeAuthority, setNewFreezeAuthority] = useState<string>("");
   const [newUpdateAuthority, setNewUpdateAuthority] = useState<string>("");
+  const [newLogoUrl, setNewLogoUrl] = useState<string>("");
   const { connection } = useConnection();
   const { wallet } = useWallet();
   const anchorWallet = useAnchorWallet();
@@ -129,6 +131,82 @@ const ManageTokenPage: React.FC = () => {
               <div>{token.image}</div>
             </div>
           </div>
+
+          <div className="bg-gray-800 rounded-lg p-6 space-y-4">
+            <h3 className="text-lg font-medium">Update Token Logo</h3>
+            <div className="grid grid-cols-2 gap-4 items-center">
+              <div className="text-gray-400">Current Logo</div>
+              <div>
+                {token.image ? (
+                  <img
+                    src={token.image}
+                    alt="Token Logo"
+                    className="h-12 w-12 rounded"
+                  />
+                ) : (
+                  <span>No logo</span>
+                )}
+              </div>
+              <div className="text-gray-400">New Logo URL</div>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="https://example.com/logo.png"
+                  value={newLogoUrl ?? ""}
+                  onChange={(e) => {
+                    // Use a temporary state since token is from a query
+                    setNewLogoUrl(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                color="blue"
+                disabled={pending || !newLogoUrl}
+                onClick={async () => {
+                  try {
+                    setPending(true);
+                    invariant(wallet?.adapter.publicKey, "Wallet not connected");
+                    invariant(anchorWallet, "Anchor wallet not connected");
+                    invariant(mint, "No mint address found");
+                    const metadata = await fetch(token.metadata.uri).then((res) => res.json());
+                    const newMetadata = JSON.stringify({
+                      ...metadata,
+                      image: newLogoUrl,
+                    });
+              
+                    const metadataReceipt = await uploadFile(
+                      new File([newMetadata], "metadata.json", { type: "application/json" }),
+                      wallet,
+                    );
+                    // Update token metadata via transaction
+                    const updateIx = await updateMetadataIx(wallet.adapter, new PublicKey(mint), {
+                      newURI: `https://gateway.irys.xyz/${metadataReceipt!.id}`,
+                    });
+                    await executeTx(
+                      connection,
+                      {
+                        ixs: [[updateIx]],
+                        description: "Update token logo",
+                      },
+                      anchorWallet,
+                    );
+                    toast.success("Logo updated!");
+                  } catch (e) {
+                    console.error(e);
+                    toast.error("Failed to update logo.");
+                  } finally {
+                    setPending(false);
+                  }
+                }}
+              >
+                Update Logo
+              </Button>
+            </div>
+          </div>
+
+
           <MintSettings token={token} />
 
           <div className="bg-gray-800 rounded-lg p-6 space-y-4">

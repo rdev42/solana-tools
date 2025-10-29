@@ -23,7 +23,7 @@ const mplProgramId = new PublicKey(
 export const updateMetadataIx = async (
   wallet: WalletAdapter,
   mint: PublicKey,
-  newUpdateAuthority: string,
+  data:{ newUpdateAuthority?: string, newURI?: string },
 ) => {
   invariant(wallet.publicKey, "Wallet not connected");
   const umi = createUmi(import.meta.env.VITE_RPC_ENDPOINT!)
@@ -43,7 +43,12 @@ export const updateMetadataIx = async (
   const args: UpdateMetadataAccountV2InstructionData = {
     ...currentData.metadata,
     // @ts-expect-error some umi stuff
-    newUpdateAuthority: publicKey(newUpdateAuthority),
+    newUpdateAuthority: data.newUpdateAuthority ? publicKey(data.newUpdateAuthority) : undefined,
+    data: {
+      ...currentData.metadata,
+      // @ts-expect-error some umi stuff
+      uri: data.newURI ? data.newURI : undefined,
+    },
   };
 
   // Metadata account IX Accounts
