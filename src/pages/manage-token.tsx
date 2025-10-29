@@ -341,7 +341,7 @@ const ManageTokenPage: React.FC = () => {
                       const tx = await updateMetadataIx(
                         wallet.adapter,
                         new PublicKey(mint),
-                        newUpdateAuthority,
+                        { newUpdateAuthority: newUpdateAuthority },
                       );
 
                       await executeTx(
